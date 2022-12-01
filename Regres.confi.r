@@ -17,13 +17,15 @@ psych::pairs.panels(Data2018[14:17])#somente variáveis confiança
 # Construção de modelo futuro: voto foi transformado em variável numérica,
 # mas isso não influencia pois o teste é realizado somente para avaliar correlação entre variáveis independentes)
 
-VIF_conf <- lm(as.numeric(Q12P2.B_Atitude_Turno_2)~ P5_Confianca_Eleicoes+P4.4_Confianca_Governo_Federal+P4.7_Confianca_Partidos_Politicos+P4.8_Confianca_Congresso_Nacional_Senado_CamaraDeputados,
+VIF_conf <- lm(as.numeric(Q12P2.B_Atitude_Turno_2)~ P5_Confianca_Eleicoes +
+                 P4.4_Confianca_Governo_Federal + P4.7_Confianca_Partidos_Politicos +
+                 P4.8_Confianca_Congresso_Nacional_Senado_CamaraDeputados,
                data = Data2018)
 
 car::vif(VIF_conf)
 
 #4. Independência de alternativas irrelevantes - Teste Hausman-MCFaddem.
-# Verifica se caso uma das opções não existisse (voto nulo, branco, abstenção ou NR/NS),
+# Verifica se caso uma das opções não existisse (voto nulo, branco, abstenção),
 #o coeficiente seria o mesmo. Ou seja, não haveria impacto sobre a decisão do voto.
 
 # Modelo com todas as alternativas

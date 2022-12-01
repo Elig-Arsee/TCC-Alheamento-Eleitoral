@@ -72,7 +72,7 @@ Data2018$D9B_FAIXA_RENDA <- factor(Data2018$D9B_FAIXA_RENDA,
 
 table(Data2018$D9B_FAIXA_RENDA)
 Data2018$D9B_FAIXA_RENDA <- relevel(Data2018$D9B_FAIXA_RENDA,
-                                    ref = "Mais de R$ 1.908,00 até R$ 4.770,00 (mais de 2 até 5 salários mínimos")
+                                    ref = "Mais de R$ 1.908,00 até R$ 4.770,00 (mais de 2 até 5 salários mínimos)")
 
 #Cor/Raça
 levels(Data2018$D12a_Cor_Raca_IBGE)
@@ -137,51 +137,41 @@ psych::pairs.panels(Data2018[10:13])
 # Construção de modelo futuro: voto foi transformado em variável numérica,
 # mas isso não influencia pois o teste é realizado somente para avaliar correlação entre variáveis independentes)
 
-VIF_sat <- lm(as.numeric(Q12P2.B_Atitude_Turno_2)~ Q21_Satisfacao_Democracia +
-                P3.4_Avaliacao_Governo_Federal + P3.7_Avaliacao_Partidos_Politicos + 
-                P3.8_Avaliacao_Congresso_Nacional_Senado_CamaraDeputados,
+VIF_sat <- lm(as.numeric(Q12P2.B_Atitude_Turno_2)~ Q21_Satisfacao_Democracia+P3.4_Avaliacao_Governo_Federal+P3.7_Avaliacao_Partidos_Politicos+P3.8_Avaliacao_Congresso_Nacional_Senado_CamaraDeputados,
               data = Data2018)
 
 car::vif(VIF_sat)
 
 
 #4. Independência de alternativas irrelevantes - Teste Hausman-MCFaddem.
-# Verifica se caso uma das opções não existisse (voto nulo, branco, abstenção)
+# Verifica se caso uma das opções não existisse (voto nulo, branco, abstenção ou NR/NS),
 #o coeficiente seria o mesmo. Ou seja, não haveria impacto sobre a decisão do voto.
 
 install.packages("mlogit")#se não tiver pacote instalado precisa instalar.
 library(mlogit)
 
 # Modelo com todas as alternativas
-modi_ai <- mlogit::mlogit(Q12P2.B_Atitude_Turno_2 ~ 1 | Q21_Satisfacao_Democracia +
-                            P3.4_Avaliacao_Governo_Federal + P3.7_Avaliacao_Partidos_Politicos +
-                            P3.8_Avaliacao_Congresso_Nacional_Senado_CamaraDeputados,
+modi_ai <- mlogit::mlogit(Q12P2.B_Atitude_Turno_2 ~ 1 | Q21_Satisfacao_Democracia + P3.4_Avaliacao_Governo_Federal + P3.7_Avaliacao_Partidos_Politicos + P3.8_Avaliacao_Congresso_Nacional_Senado_CamaraDeputados,
                          data = Data2018,
                          shape = "wide",
                          reflevel = "Voto nominal")#Categoria de referência
 
 # Modelo excluindo voto em branco
-modi_ai2 <- mlogit::mlogit(Q12P2.B_Atitude_Turno_2 ~ 1 | Q21_Satisfacao_Democracia +
-                             P3.4_Avaliacao_Governo_Federal + P3.7_Avaliacao_Partidos_Politicos +
-                             P3.8_Avaliacao_Congresso_Nacional_Senado_CamaraDeputados,
+modi_ai2 <- mlogit::mlogit(Q12P2.B_Atitude_Turno_2 ~ 1 | Q21_Satisfacao_Democracia + P3.4_Avaliacao_Governo_Federal + P3.7_Avaliacao_Partidos_Politicos + P3.8_Avaliacao_Congresso_Nacional_Senado_CamaraDeputados,
                           data = Data2018,
                           shape = "wide",
                           reflevel = "Voto nominal",
                           alt.subset = c("Abstenção", "Voto nominal", "Voto anulado"))
 
 # Modelo excluindo voto nulo
-modi_ai3 <- mlogit::mlogit(Q12P2.B_Atitude_Turno_2 ~ 1 | Q21_Satisfacao_Democracia +
-                             P3.4_Avaliacao_Governo_Federal + P3.7_Avaliacao_Partidos_Politicos +
-                             P3.8_Avaliacao_Congresso_Nacional_Senado_CamaraDeputados,
+modi_ai3 <- mlogit::mlogit(Q12P2.B_Atitude_Turno_2 ~ 1 | Q21_Satisfacao_Democracia + P3.4_Avaliacao_Governo_Federal + P3.7_Avaliacao_Partidos_Politicos + P3.8_Avaliacao_Congresso_Nacional_Senado_CamaraDeputados,
                           data = Data2018,
                           shape = "wide",
                           reflevel = "Voto nominal",
                           alt.subset = c("Abstenção", "Voto nominal", "Voto em branco"))
 
 # Modelo excluindo abstenção
-modi_ai4 <- mlogit::mlogit(Q12P2.B_Atitude_Turno_2 ~ 1 | Q21_Satisfacao_Democracia +
-                             P3.4_Avaliacao_Governo_Federal + P3.7_Avaliacao_Partidos_Politicos +
-                             P3.8_Avaliacao_Congresso_Nacional_Senado_CamaraDeputados,
+modi_ai4 <- mlogit::mlogit(Q12P2.B_Atitude_Turno_2 ~ 1 | Q21_Satisfacao_Democracia + P3.4_Avaliacao_Governo_Federal + P3.7_Avaliacao_Partidos_Politicos + P3.8_Avaliacao_Congresso_Nacional_Senado_CamaraDeputados,
                           data = Data2018,
                           shape = "wide",
                           reflevel = "Voto nominal",
@@ -199,9 +189,7 @@ library(nnet)
 ?multinom
 
 # Modelo Satisfação
-mod_sat <- multinom(Q12P2.B_Atitude_Turno_2 ~ Q21_Satisfacao_Democracia +
-                      P3.4_Avaliacao_Governo_Federal + P3.7_Avaliacao_Partidos_Politicos +
-                      P3.8_Avaliacao_Congresso_Nacional_Senado_CamaraDeputados,
+mod_sat <- multinom(Q12P2.B_Atitude_Turno_2 ~ Q21_Satisfacao_Democracia + P3.4_Avaliacao_Governo_Federal + P3.7_Avaliacao_Partidos_Politicos + P3.8_Avaliacao_Congresso_Nacional_Senado_CamaraDeputados,
                            data = Data2018, model = TRUE)
 
 # Modelo nulo sem nenhum previsor
@@ -213,30 +201,38 @@ mod_sat0 <- multinom(Q12P2.B_Atitude_Turno_2 ~ 1, data = Data2018, model = TRUE)
 # p precisa ser menor que 0,05
 Anova <- anova(mod_sat0, mod_sat)
 
+gtsummary::tbl_summary(Anova)
+
+
 # Verificação do R². Ele informa a proporção da VD que é explicada pelas VI.
-DescTools::PseudoR2(mod_sat, which = "Nagelkerke")
+R2_Neig_sat <- DescTools::PseudoR2(mod_sat, which = "Nagelkerke")
+
+
+#Obtenção dos valores de p - por Wald (mesmo tipo do spss)
+T_Wald_sat <- lmtest::coeftest(mod_sat)
 
 
 #Para verificar efeitos globais
 car::Anova(mod_sat, type = "II", test = "Nald")
-gtsummary::tbl_summary(EG)
+
 
 #Para verificar coeficientes do modelo
 summary(mod_sat)
 
-#Obtenção dos valores de p - por Wald (mesmo tipo do spss)
-lmtest::coeftest(mod_sat)
 
 #Calcula razão de chance
 exp(coef(mod_sat))
 
 #Calcula intervalo de confiança para coeficientes
-exp(confint(mod_satisfação))
+exp(confint(mod_sat))
 
 #Tabela completa
 
-gtsummary::tbl_regression(mod_sat, exponentiate = TRUE)
-help("tbl_regression")
+Tab_Multi_Sat <- gtsummary::tbl_regression(mod_sat, exponentiate = TRUE)
+
+as_gt(Tab_Multi_Sat)
+
+
 
 install.packages("pacman", repos="http://cran.rstudio.com/", dependencies=TRUE)
 
@@ -244,7 +240,4 @@ install.packages("pacman", repos="http://cran.rstudio.com/", dependencies=TRUE)
 sjPlot::plot_model(mod_sat)
 
 #Verificar modelo: ficou bem ruim.
-summary(predict(mod_satisfação))
-
-
-
+summary(predict(mod_sat))
