@@ -1,3 +1,41 @@
+
+#Carrego Bibliotecas
+if(!require(pacman)) install.packages("pacman")
+library(pacman)
+
+pacman::p_load(dplyr, car, psych, nnet, AER, lmtest,
+               gtsummary, reshape2, ggplot2, DescTools,
+               ggrastr, sjPlot)
+
+
+#Carrego Banco de dados completo
+dados2018 <- read.csv("Data_2018.csv", stringsAsFactors = TRUE,
+                      fileEncoding = "latin1", header = TRUE, sep = "\t")
+
+
+#Visualizo Banco de Dados
+View(dados2018)
+glimpse(dados2018)
+
+#Gravo novo dataframe onde a coluna de atitude turno 2 não tem as linhas de pessoas que não sabem ou não
+#responderam em quem votaram
+Data2018 <- droplevels(subset(dados2018,
+                              Q12P2.B_Atitude_Turno_2 == "Abstenção" |
+                                Q12P2.B_Atitude_Turno_2 == "Voto branco ou nulo" |
+                                Q12P2.B_Atitude_Turno_2 == "Voto nominal"))
+
+#Visualizo somente a variável Atitude turno 2 para ver se realmente linhas com NR/NS foram excluídas
+summary(Data2018$Q12P2.B_Atitude_Turno_2)
+
+
+#Estabeleço a ordem das categorias
+Data2018$Q12P2.B_Atitude_Turno_2 <- factor(Data2018$Q12P2.B_Atitude_Turno_2,
+                                           levels=c("Voto nominal","Abstenção","Voto branco ou nulo"))
+
+#Visualizo somente a variável Atitude turno 2 para ver se varáveis foram reordenadas
+summary(Data2018$Q12P2.B_Atitude_Turno_2)
+
+
 ###################################################_____ANÁLISE CONFIANÇA_____
 
 # Passo 1: Checagem de pressupostos para análise Confiança
@@ -9,7 +47,7 @@
 #3. Ausência de multicolinearidade (alta correlação entre variáveis independentes do modelo)
 
 #3.1 Checagem de correlação entre variáveis independentes
-psych::pairs.panels(Data2018[14:17])#somente variáveis confiança
+psych::pairs.panels(Data2018[12:15])#somente variáveis confiança
 
 #3.2 Checagem de Vif (Independence of Irrelevant Alternatives).
 # Fator de Inflação de Variância verifica correlação entre variáveis independentes.
@@ -37,7 +75,7 @@ modi_ai_conf <- mlogit::mlogit(Q12P2.B_Atitude_Turno_2 ~ 1 | P5_Confianca_Eleico
                                shape = "wide",
                                reflevel = "Voto nominal")
 
-# Modelo excluindo voto em branco
+# Modelo excluindo voto branco ou nulo
 modi_ai_conf2 <- mlogit::mlogit(Q12P2.B_Atitude_Turno_2 ~ 1 | P5_Confianca_Eleicoes +
                                   P4.4_Confianca_Governo_Federal +
                                   P4.7_Confianca_Partidos_Politicos +
@@ -45,9 +83,9 @@ modi_ai_conf2 <- mlogit::mlogit(Q12P2.B_Atitude_Turno_2 ~ 1 | P5_Confianca_Eleic
                                 data = Data2018,
                                 shape = "wide",
                                 reflevel = "Voto nominal",
-                                alt.subset = c("Abstenção", "Voto nominal", "Voto nulo"))
+                                alt.subset = c("Abstenção", "Voto nominal"))
 
-# Modelo excluindo voto nulo
+# Modelo excluindo abstenção
 modi_ai_conf3 <- mlogit::mlogit(Q12P2.B_Atitude_Turno_2 ~ 1 | P5_Confianca_Eleicoes +
                                   P4.4_Confianca_Governo_Federal +
                                   P4.7_Confianca_Partidos_Politicos +
@@ -55,23 +93,14 @@ modi_ai_conf3 <- mlogit::mlogit(Q12P2.B_Atitude_Turno_2 ~ 1 | P5_Confianca_Eleic
                                 data = Data2018,
                                 shape = "wide",
                                 reflevel = "Voto nominal",
-                                alt.subset = c("Abstenção", "Voto nominal", "Voto em branco"))
+                                alt.subset = c("Voto nominal", "Voto branco ou nulo"))
 
-# Modelo excluindo abtenção
-modi_ai_conf4 <- mlogit::mlogit(Q12P2.B_Atitude_Turno_2 ~ 1 | P5_Confianca_Eleicoes +
-                                  P4.4_Confianca_Governo_Federal +
-                                  P4.7_Confianca_Partidos_Politicos +
-                                  P4.8_Confianca_Congresso_Nacional_Senado_CamaraDeputados,
-                                data = Data2018,
-                                shape = "wide",
-                                reflevel = "Voto nominal",
-                                alt.subset = c("Voto nominal", "Voto anulado", "Voto em branco"))
 
 # Comparando modelos para ver se há independência das alternativas irrelevantes
 # p precisa ser maior que 0,05
 mlogit::hmftest(modi_ai_conf, modi_ai_conf2)
 mlogit::hmftest(modi_ai_conf, modi_ai_conf3)
-mlogit::hmftest(modi_ai_conf, modi_ai_conf4)
+
 
 # 5. Construção de modelos de regressão multinomial para confiança
 mod_conf <- multinom(Q12P2.B_Atitude_Turno_2 ~ P5_Confianca_Eleicoes +
@@ -116,4 +145,11 @@ Tab_Mult_Conf <- gtsummary::tbl_regression(mod_conf, exponentiate = TRUE)
 
 #gráfico:
 
-sjPlot::plot_model(mod_conf)
+sjPlot::plot_model(mod_conf,
+                   title = "Atitude no segundo turno",
+                   show.legend = F,
+                   axis.labels = list
+                   ("Confiança Congresso Nacional (Senado e Câmara Deputados)",
+                     "Confiança Partidos Políticos",
+                     "Confiança Governo Federal",
+                     "Confiança Eleições"))

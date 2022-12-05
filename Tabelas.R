@@ -8,8 +8,8 @@ pacman::p_load(dplyr, car, psych, nnet, AER, lmtest,
 
 
 #Carrego Banco de dados completo
-dados2018 <- read.csv2("Data2018.csv", stringsAsFactors = TRUE,
-                       fileEncoding = "latin1")
+dados2018 <- read.csv("Data_2018.csv", stringsAsFactors = TRUE,
+                       fileEncoding = "latin1", header = TRUE, sep = "\t")
 
 
 #Visualizo Banco de Dados
@@ -20,8 +20,7 @@ glimpse(dados2018)
 #responderam em quem votaram
 Data2018 <- droplevels(subset(dados2018,
                               Q12P2.B_Atitude_Turno_2 == "Abstenção" |
-                                Q12P2.B_Atitude_Turno_2 == "Voto nulo" |
-                                Q12P2.B_Atitude_Turno_2 == "Voto em branco" |
+                                Q12P2.B_Atitude_Turno_2 == "Voto branco ou nulo" |
                                 Q12P2.B_Atitude_Turno_2 == "Voto nominal"))
 
 #Visualizo somente a variável Atitude turno 2 para ver se realmente linhas com NR/NS foram excluídas
@@ -30,10 +29,75 @@ summary(Data2018$Q12P2.B_Atitude_Turno_2)
 
 #Estabeleço a ordem das categorias
 Data2018$Q12P2.B_Atitude_Turno_2 <- factor(Data2018$Q12P2.B_Atitude_Turno_2,
-                                           levels=c("Voto nominal","Abstenção","Voto nulo","Voto em branco"))
+                                           levels=c("Voto nominal","Abstenção","Voto branco ou nulo"))
 
 #Visualizo somente a variável Atitude turno 2 para ver se varáveis foram reordenadas
 summary(Data2018$Q12P2.B_Atitude_Turno_2)
+
+#Verifico níveis das categorias, mudo ordem e aplico relevel para estipular categorias de referência
+
+#Idade
+levels(Data2018$D1A_Faixa_Idade) #Verifico níveis
+table(Data2018$D1A_Faixa_Idade) # Verifico ocorrências de cada nível
+Data2018$D1A_Faixa_Idade <- relevel(Data2018$D1A_Faixa_Idade,
+                                    ref = "25 A 34")#Seleciono categoria mais recorrente como referência
+
+#Sexo
+levels(Data2018$D2_Sexo)#Não precisa estipular categoria de referência porque já é a feminina.
+
+#Escolaridade
+levels(Data2018$D3_Escolaridade)
+Data2018$D3_Escolaridade <- factor(Data2018$D3_Escolaridade,
+                                   levels=c("Analfabeto", "Fundamental incompleto",
+                                            "Fundamental completo",
+                                            "Médio completo",
+                                            "Universitário completo",))
+
+table(Data2018$D3_Escolaridade)
+Data2018$D3_Escolaridade <- relevel(Data2018$D3_Escolaridade,
+                                    ref = "Médio completo")
+
+#Renda
+levels(Data2018$D9B_FAIXA_RENDA)
+Data2018$D9B_FAIXA_RENDA <- factor(Data2018$D9B_FAIXA_RENDA,
+                                   levels=c("1 salário mínimo",
+                                            "1 até 2 salários mínimos",
+                                            "2 até 5 salários mínimos",
+                                            "5 até 10 salários mínimos",
+                                            "10 até 15 salários mínimos",
+                                            "15 até 20 salários mínimos",
+                                            "Mais de 20 salários mínimos",
+                                            "NS/NR"))
+
+table(Data2018$D9B_FAIXA_RENDA)
+Data2018$D9B_FAIXA_RENDA <- relevel(Data2018$D9B_FAIXA_RENDA,
+                                    ref = "2 até 5 salários mínimos")
+
+#Cor/Raça
+levels(Data2018$D12a_Cor_Raca_IBGE)
+Data2018$D12a_Cor_Raca_IBGE <- factor(Data2018$D12a_Cor_Raca_IBGE,
+                                      levels=c("Branco", "Não branco", "NS/NR"))
+
+table(Data2018$D12a_Cor_Raca_IBGE)
+Data2018$D12a_Cor_Raca_IBGE <- relevel(Data2018$D12a_Cor_Raca_IBGE,
+                                       ref = "PNão branco")
+
+
+#Região
+levels(Data2018$Regiao)
+table(Data2018$Regiao)
+Data2018$Regiao <- relevel(Data2018$Regiao,
+                           ref = "Sudeste")
+#Religião
+levels(Data2018$D10_Religiao)
+table(Data2018$D10_Religiao)
+
+Data2018$D10_Religiao <- factor(Data2018$D10_Religiao,
+                                levels=c("Católica", "Evangélica", "Outras",
+                                         "Não tem religião", "NS/NR"))
+
+Data2018$D10_Religiao <- relevel(Data2018$D10_Religiao,
+                                 ref = "Católica")
 
 #Crio tabela de resumo com distribuição percentual dos entrevistados segundo variáveis socioeconômicas
 Tabela_socio <- Data2018%>%
@@ -41,20 +105,18 @@ Tabela_socio <- Data2018%>%
     by = Q12P2.B_Atitude_Turno_2,
     statistic = list(all_categorical() ~ "{p}% ({n})"),
     digits = all_continuous() ~ 2,
-    label = list(D2_Sexo ~ "Sexo",
+    label = list(Regiao ~ "Região",
+                 D2_Sexo ~ "Sexo",
                  D1A_Faixa_Idade ~ "Idade",
                  D3_Escolaridade ~ "Escolaridade",
-                 Localidade ~ "Localidade",
-                 Regiao ~ "Região",
+                 D10_Religiao ~ "Religião",
                  D12a_Cor_Raca_IBGE ~ "IBGE:Cor/Raça",
-                 D07_situacao.profissional ~ "Situação Profissional",
-                 D9B_FAIXA_RENDA ~ "Faixa de Renda", 
-                 D10_Religiao ~ "Religião"),
+                 D9B_FAIXA_RENDA ~ "Faixa de Renda"),
     percent = "row")%>%
   bold_labels()%>%
   add_overall(statistic = list(all_categorical() ~ "{p}% ({n})"),
               last = T)%>%
-  modify_spanning_header(c("stat_1", "stat_2", "stat_3", "stat_4") ~"**Atitude no segundo turno da eleição**") %>%
+  modify_spanning_header(c("stat_1", "stat_2", "stat_3") ~"**Atitude no segundo turno da eleição**") %>%
   modify_caption("**Tabela 1: Distribuição percentual dos entrevistados,
   por atitude no segundo turno da eleição de 2018, segundo variáveis socioeconômicas**")
 
@@ -82,15 +144,13 @@ Tabela_Socio <- flextable()
 Tabela_2 <- Data2018%>%
   tbl_summary(statistic = list(all_categorical() ~ "{p}% ({n})"),
               digits = all_continuous() ~ 3,
-              label = list(D2_Sexo ~ "Sexo",
+              label = list(Regiao ~ "Região",
+                           D2_Sexo ~ "Sexo",
                            D1A_Faixa_Idade ~ "Idade",
                            D3_Escolaridade ~ "Escolaridade",
-                           Localidade ~ "Localidade",
-                           Regiao ~ "Região",
+                           D10_Religiao ~ "Religião",
                            D12a_Cor_Raca_IBGE ~ "IBGE:Cor/Raça",
-                           D07_situacao.profissional ~ "Situação Profissional",
-                           D9B_FAIXA_RENDA ~ "Faixa de Renda", 
-                           D10_Religiao ~ "Religião"),
+                           D9B_FAIXA_RENDA ~ "Faixa de Renda"),
               percent = "col")%>%
   bold_labels()%>%
   modify_caption("**Tabela 2: % das categorias relativas a amostra**")
