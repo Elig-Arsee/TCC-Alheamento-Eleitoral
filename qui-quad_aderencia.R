@@ -3,13 +3,14 @@
 levels(Data2018$Q12P2.B_Atitude_Turno_2)
 
 quiqua <- chisq.test(x = table(Data2018$Q12P2.B_Atitude_Turno_2),
-                     p = c(0.711, 0.212, 0.058, 0.019))
+                     p = c(0.711, 0.212, 0.077))
 
 #2018, conforme site TSE.
 #nominais: 0,7117
 #abstenção 0,2129
 #Voto nulo 0,0584
 #voto em branco 0,0193
+#Voto branco e nulo 0.077
 
 quiqua
 
@@ -31,4 +32,4 @@ quiqua$stdres#resídos são significativos fora da faixa -1,96 + 1,96
 library(fstat)
 
 fstat::graf_obs_esp_ader(Data2018, v1 = Q12P2.B_Atitude_Turno_2,
-                         props = c(0.711, 0.212, 0.058, 0.019), cor = "cadetblue")
+                         props = c(0.711, 0.212, 0.077), cor = paleta)
