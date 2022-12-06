@@ -80,7 +80,7 @@ Data2018$D12a_Cor_Raca_IBGE <- factor(Data2018$D12a_Cor_Raca_IBGE,
 
 table(Data2018$D12a_Cor_Raca_IBGE)
 Data2018$D12a_Cor_Raca_IBGE <- relevel(Data2018$D12a_Cor_Raca_IBGE,
-                                       ref = "PNão branco")
+                                       ref = "Não branco")
 
 
 #Região
@@ -155,3 +155,8 @@ Tabela_2 <- Data2018%>%
   bold_labels()%>%
   modify_caption("**Tabela 2: % das categorias relativas a amostra**")
 
+
+summary((Data2018$P4.8_Confianca_Congresso_Nacional_Senado_CamaraDeputados,
+         Data2018$Q12P2.B_Atitude_Turno_2))
+prop.table(table(Data2018$P4.8_Confianca_Congresso_Nacional_Senado_CamaraDeputados,
+                 Data2018$Q12P2.B_Atitude_Turno_2))*100
