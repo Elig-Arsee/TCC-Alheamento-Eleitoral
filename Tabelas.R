@@ -51,7 +51,7 @@ Data2018$D3_Escolaridade <- factor(Data2018$D3_Escolaridade,
                                    levels=c("Analfabeto", "Fundamental incompleto",
                                             "Fundamental completo",
                                             "Médio completo",
-                                            "Universitário completo",))
+                                            "Universitário completo"))
 
 table(Data2018$D3_Escolaridade)
 Data2018$D3_Escolaridade <- relevel(Data2018$D3_Escolaridade,

@@ -165,7 +165,7 @@ summary(mod_socio)
 
 # Tabela completa
 gtsummary::tbl_regression(mod_socio, exponentiate = TRUE)
-sjPlot::plot_model(mod_socio)
+
 #Gráfico
 sjPlot::plot_model(mod_socio,
                    title = "Atitude no segundo turno",
@@ -185,3 +185,4 @@ sjPlot::plot_model(mod_socio,
                      "Região [Nordeste]",
                      "Região [Centro-Oeste]"))
 
+ggsave("graf13.png", width = 6, height = 4.5, dpi = 400)

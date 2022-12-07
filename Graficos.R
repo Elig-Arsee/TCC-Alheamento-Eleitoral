@@ -61,14 +61,43 @@ G0 <- G0 + scale_y_continuous(expand = expansion(mult = c(0, 0.05)))
 
 G0
 
+# Gráfico distribuição da amostra
+  
+ G1 <- Data2018 %>%
+  filter(!is.na(Q12P2.B_Atitude_Turno_2)) %>% 
+  group_by(Q12P2.B_Atitude_Turno_2) %>%
+  summarise(n = n()) %>% 
+  ungroup() %>% 
+  mutate(porc = n/sum(n),
+         rotulo = paste0(n, "  |  ", scales::number(100*porc, accuracy = 0.01,
+                                                    decimal.mark = ",",
+                                                    suffix = "%"))) %>% 
+  ggplot(aes(x = Q12P2.B_Atitude_Turno_2, y = n, fill = Q12P2.B_Atitude_Turno_2)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = rotulo), size = 3, vjust = -0.5) +
+  scale_fill_manual(values = paleta) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.1))) +
+  labs(title = "Distribuição da amostra segundo atitude no segundo turno",
+       y = "Ocorrências",
+       x = "Atitude no segundo turno",
+       fill = NULL) +
+  theme_classic() +
+  theme(legend.position = "bottom",
+        title = element_text(size = 10))
+
+ggsave("graf1.png", width = 6, height = 4.5, dpi = 400)#esse código é para salvar com qualidade melhor
+
+# salva a imagem do plots no diretório de trabalho
+# com alta resolução (determinada pelos dpi). Precisa ficar ajustando largura (width) e
+# altura (height) para cada uma
 
 
 #Gráfico violino para satisfação
 
-G1 <- ggplot(Data2018, aes(x = Q12P2.B_Atitude_Turno_2,
+G2 <- ggplot(Data2018, aes(x = Q12P2.B_Atitude_Turno_2,
                      y = Q11_Satisfacao_Democracia)) +
   geom_violin(aes(fill = Q12P2.B_Atitude_Turno_2)) +
-  geom_boxplot_jitter(outlier.alpha = 0, fill = "white", width = 0.3) +
+  #geom_boxplot_jitter(outlier.alpha = 0, fill = "white", width = 0.3) +
   labs(title = "Satisfação com a democracia",
        x = "Atitude no segundo turno",
        y = "Satisfação com a democracia",
@@ -81,9 +110,10 @@ G1 <- ggplot(Data2018, aes(x = Q12P2.B_Atitude_Turno_2,
   theme(legend.position = "bottom", plot.caption = element_text(size = 11L))
 
 
-G1 <- G1 + scale_fill_manual(values = paleta,#Aplico paleta no gráfico
+G2 <- G2 + scale_fill_manual(values = paleta,#Aplico paleta no gráfico
                              breaks = c("Voto nominal", "Abstenção", "Voto branco ou nulo"))
-G1
+
+ggsave("graf2.png", width = 6, height = 4.5, dpi = 400)
 
 
 #Gráfico violino plot com três fatores comparando notas de Satisfação
@@ -119,27 +149,16 @@ G2 <- ggplot(G_sat, aes(x = `Segmento avaliado`,
   theme_classic() +
   theme(legend.position = "bottom", plot.caption = element_text(size = 11L))
 
-install.packages("vioplot")
-library("vioplot")
-
-V1 <- vioplot(Nota ~ `Segmento avaliado`, data = G_sat,
-        col = c(paleta),
-        border = NA)
-
-V2 <- vioplot(Q11_Satisfacao_Democracia ~ Q12P2.B_Atitude_Turno_2, data = Data2018,
-        col = c(paleta),
-        border = NA)
-
-?geom_boxplot_jitter
 
 G2 <- G2 + scale_fill_manual(values = paleta,#Aplico paleta no gráfico
                              breaks = c("Voto nominal", "Abstenção", "Voto branco ou nulo"))
-G1
+
+ggsave("graf3.png", width = 6, height = 4.5, dpi = 400)
 
 
 
 #Gráfico violino para confiança
-library(esquisse)
+
 
 G3 <- ggplot(Data2018) + aes(x = Q12P2.B_Atitude_Turno_2,
                        y = P5_Confianca_Eleicoes,
@@ -149,18 +168,18 @@ G3 <- ggplot(Data2018) + aes(x = Q12P2.B_Atitude_Turno_2,
   labs(x = "Nota",
        y = "Atitude no segundo turno",
        title = "Confiança nas Eleições",
-       caption = "1 - As eleições são confiáveis; 2 - São objeto de fraude; 3 - NS/NR",
+       caption = "1 - As eleições são confiáveis;
+       2 - São objeto de fraude;
+       3 - NS/NR",
        fill = "Atitude segundo turno") +
   theme_classic() +
   theme(legend.position = "bottom",
-        plot.title = element_text(size = 14L),
+        plot.title = element_text(size = 11L),
         plot.caption = element_text(size = 11L),
         axis.title.y = element_text(size = 11L,),
         axis.title.x = element_text(size = 11L))
 
-vioplot(P5_Confianca_Eleicoes ~ Q12P2.B_Atitude_Turno_2, data = Data2018,
-        col = c(paleta),
-        border = NA)
+ggsave("graf5.png", width = 6, height = 4.5, dpi = 400)
 
 #Gráfico violino com três fatores comparando notas de Confiança
 G_conf <- Data2018 %>%
@@ -196,7 +215,9 @@ G4 <- ggplot(G_conf, aes(x = `Segmento avaliado`,
 
 G4 <- G4 + scale_fill_manual(values = paleta,#Aplico paleta no gráfico
                              breaks = c("Voto nominal", "Abstenção", "Voto branco ou nulo"))
-G4
+
+ggsave("graf6.png", width = 6, height = 4.5, dpi = 400)
+
 
 #Gráfico para percepção corrupção problema sério
 library(esquisse)
@@ -219,12 +240,12 @@ G5 <- ggplot(Data2018) + aes(x = Q12P2.B_Atitude_Turno_2,
        fill = "Atitude segundo turno") +
   theme_classic() +
   theme(legend.position = "bottom",
-        plot.title = element_text(size = 14L),
+        plot.title = element_text(size = 12L),
         plot.caption = element_text(size = 11L),
         axis.title.y = element_text(size = 11L,),
         axis.title.x = element_text(size = 11L))
 
-glimpse(Data2018)
+ggsave("graf8.png", width = 6, height = 4.5, dpi = 400)
 
 #Gráfico para percepção corrupção generalizada
 library(esquisse)
@@ -248,11 +269,12 @@ isso dificilmente acontece?",
        fill = "Atitude segundo turno") +
   theme_classic() +
   theme(legend.position = "bottom",
-        plot.title = element_text(size = 14L),
+        plot.title = element_text(size = 12L),
         plot.caption = element_text(size = 11L),
         axis.title.y = element_text(size = 11L,),
         axis.title.x = element_text(size = 11L))
 
+ggsave("graf9.png", width = 6, height = 4.5, dpi = 400)
 
 #Gráfico para voto obrigatório
 
@@ -269,8 +291,8 @@ G7 <- ggplot(Data2018) + aes(x = P24_Voto_Obrigatorio,
     4 - NS/NR",
     fill = "Atitude segundo turno") +
   theme_classic() +
-  theme(plot.title = element_text(size = 14L, face = "bold"),
-        plot.subtitle = element_text(size = 12L),
+  theme(plot.title = element_text(size = 12L),
+        plot.subtitle = element_text(size = 11L),
         plot.caption = element_text(size = 11L))
 
 G7 <- G7 + scale_fill_manual(values = paleta,
@@ -278,3 +300,4 @@ G7 <- G7 + scale_fill_manual(values = paleta,
 
 G7 <- G7+scale_y_continuous(expand = expansion(mult = c(0, 0.05)))
 
+ggsave("graf10.png", width = 6, height = 4.5, dpi = 400)
