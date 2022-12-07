@@ -33,3 +33,5 @@ library(fstat)
 
 fstat::graf_obs_esp_ader(Data2018, v1 = Q12P2.B_Atitude_Turno_2,
                          props = c(0.711, 0.212, 0.077), cor = paleta)
+
+ggsave("graf12.png", width = 6, height = 4.5, dpi = 400)

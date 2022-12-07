@@ -101,7 +101,6 @@ modi_ai_conf3 <- mlogit::mlogit(Q12P2.B_Atitude_Turno_2 ~ 1 | P5_Confianca_Eleic
 mlogit::hmftest(modi_ai_conf, modi_ai_conf2)
 mlogit::hmftest(modi_ai_conf, modi_ai_conf3)
 
-
 # 5. Construção de modelos de regressão multinomial para confiança
 mod_conf <- multinom(Q12P2.B_Atitude_Turno_2 ~ P5_Confianca_Eleicoes +
                        P4.4_Confianca_Governo_Federal +
@@ -153,3 +152,5 @@ sjPlot::plot_model(mod_conf,
                      "Confiança Partidos Políticos",
                      "Confiança Governo Federal",
                      "Confiança Eleições"))
+
+ggsave("graf7.png", width = 6, height = 4.5, dpi = 400)

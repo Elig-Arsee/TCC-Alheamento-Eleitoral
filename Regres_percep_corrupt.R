@@ -134,7 +134,7 @@ exp(confint(modelo_perc))
 Tab_Mult_perc <- gtsummary::tbl_regression(modelo_perc, exponentiate = TRUE)
 
 #gráfico:
-sjPlot::plot_model(modelo_perc)
+
 sjPlot::plot_model(modelo_perc,
                    title = "Atitude no segundo turno",
                    show.legend = F,
@@ -142,3 +142,5 @@ sjPlot::plot_model(modelo_perc,
                    ("Voto obrigatório)",
                      "Percepção corrupção generalizada",
                      "Percepção corrupção problema sério"))
+
+ggsave("graf11.png", width = 6, height = 4.5, dpi = 400)

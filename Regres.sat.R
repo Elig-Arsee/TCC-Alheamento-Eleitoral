@@ -58,20 +58,17 @@ glimpse(Data2018)
 # mas isso não influencia pois o teste é realizado somente para avaliar correlação entre variáveis independentes)
 library(mlogit)
 
-VIF_sat_conf_corrup <- lm(as.numeric(Q12P2.B_Atitude_Turno_2)~ Q11_Satisfacao_Democracia +
+VIF_sat <- lm(as.numeric(Q12P2.B_Atitude_Turno_2)~ Q11_Satisfacao_Democracia +
                             P3.4_Avaliacao_Governo_Federal + P3.7_Avaliacao_Partidos_Politicos + 
                             P3.8_Avaliacao_Congresso_Nacional_Senado_CamaraDeputados,
                           data = Data2018)
 
-car::vif(VIF_sat_conf_corrup)
+car::vif(VIF_sat)
 
 
 #4. Independência de alternativas irrelevantes - Teste Hausman-MCFaddem.
 # Verifica se caso uma das opções não existisse (voto nulo, branco, abstenção)
 #o coeficiente seria o mesmo. Ou seja, não haveria impacto sobre a decisão do voto.
-
-install.packages("mlogit")#se não tiver pacote instalado precisa instalar.
-library(mlogit)
 
 # Modelo com todas as alternativas
 modi_ai <- mlogit::mlogit(Q12P2.B_Atitude_Turno_2 ~ 1 | Q11_Satisfacao_Democracia +
@@ -130,13 +127,14 @@ mod_sat0 <- multinom(Q12P2.B_Atitude_Turno_2 ~ 1, data = Data2018, model = TRUE)
 # p precisa ser menor que 0,05
 Anova <- anova(mod_sat0, mod_sat)
 
+
 # Verificação do R². Ele informa a proporção da VD que é explicada pelas VI.
 DescTools::PseudoR2(mod_sat, which = "Nagelkerke")
 
 
 #Para verificar efeitos globais
 car::Anova(mod_sat, type = "II", test = "Nald")
-gtsummary::tbl_summary(EG)
+
 
 #Para verificar coeficientes do modelo
 summary(mod_sat)
@@ -160,7 +158,7 @@ install.packages("pacman", repos="http://cran.rstudio.com/", dependencies=TRUE)
 #Gráfico
 
 sjPlot::plot_model(mod_sat,
-                   title = "Atitude no segundo turno", position_stack(T),
+                   title = "Atitude no segundo turno",
                    show.legend = F,
                    axis.labels = list
                    ("Avaliação Congresso Nacional (Senado e Câmara Deputados)",
@@ -168,6 +166,7 @@ sjPlot::plot_model(mod_sat,
                      "Avaliação Governo Federal",
                      "Satisfação com Democracia"))
 
+ggsave("graf4.png", width = 6, height = 4.5, dpi = 400)
 
 #Verificar modelo: ficou bem ruim.
 summary(predict(mod_sat))
