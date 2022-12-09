@@ -7,6 +7,73 @@ pacman::p_load(dplyr, car, psych, nnet, AER, lmtest,
                gtsummary, reshape2, ggplot2, DescTools,
                ggrastr, sjPlot)
 
+#Gráfico zero (justificativa)
+#Carrego Banco de dadados eleições desde 2002
+
+dados_todos <- read.csv("TodasElei.csv",
+                         fileEncoding = "latin1", header = TRUE, sep = ",")
+
+glimpse(dados_todos)
+
+#converto ano em factor
+
+dados_todos$Ano <- as.factor(dados_todos$Ano)
+dados_todos$Satisfacao_democracia <- as.factor(dados_todos$Satisfacao_democracia)
+dados_todos$Voto_Obrigatorio <- as.factor(dados_todos$Voto_Obrigatorio)
+
+glimpse(dados_todos)
+
+esquisse:::esquisser()
+
+
+
+
+#Gráfico
+G0 <- ggplot(dados_todos) + aes(x = Satisfacao_democracia,
+                             fill = Ano) +
+  scale_fill_hue(direction = 1) +
+  labs(x = "Nota", y = "proporção",
+       title = "Satisfação com a Democracia",
+       subtitle = "2002 a 2018",
+       caption = "1 - Satisfeito;
+    2 - Nem satisfeito, nem insatisfeito;
+    3 - Insatisfeito;
+    4 - NS/NR",
+       fill = "Satisfação com a Democracia") +
+  theme_classic() +
+  theme(plot.title = element_text(size = 12L),
+        plot.subtitle = element_text(size = 11L),
+        plot.caption = element_text(size = 11L))
+
+G0 <- ggplot(dados_todos) + aes(x = Ano,
+                          y = Satisfacao_democracia,
+                          fill = Satisfacao_democracia,
+                          colour = Satisfacao_democracia,
+                          group = Satisfacao_democracia) +
+  geom_col() +
+  scale_fill_distiller(palette = "paleta", direction = -1) +
+  scale_color_distiller(palette = "paleta", direction = -1) +
+  labs(x = "Ano",
+       y = "Satisfação Democracia",
+       title = "Satisfação com a Democracia",
+       subtitle = "2002 a 2018",
+       caption = "1 - Satisfeito;
+       2 - Nem satisfeito nem insatisfeito;
+       3 - Insatisfeito;
+       4 - NS/NR") +
+  theme_classic() +
+  theme(legend.position = "bottom",
+        plot.title = element_text(size = 1L),
+        plot.caption = element_text(size = 11L))
+
+?palleta
+G0 <- G0 + scale_fill_manual(values = paleta,
+                             breaks = c("1", "2", "3", "4"))
+
+G0 <- G0+scale_y_continuous(expand = expansion(mult = c(0, 0.05)))
+
+
+
 
 #Carrego Banco de dados completo
 dados2018 <- read.csv("Data_2018.csv", stringsAsFactors = TRUE,
